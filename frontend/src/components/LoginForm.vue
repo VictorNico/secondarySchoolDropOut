@@ -47,7 +47,7 @@
                   <p class="text-muted text-sm mb-5">Sign up to get access to our services.</p>
                   <form action="index.html">
                     <div class="form-floating mb-3">
-                      <input class="form-control" id="username" type="email" placeholder="name@example.com" required>
+                      <input class="form-control" id="username" type="text" placeholder="root" required>
                       <label for="username">Username</label>
                     </div>
                     <div class="form-floating mb-3">
@@ -75,7 +75,7 @@
           <!-- </transition> -->
          <div class="col-lg-6 d-none d-sm-block col-xl-5 ms-xl-auto px-lg-4 text-center text-primary"><img class="img-fluid mb-4" width="300" src="https://therichpost.com/wp-content/uploads/2021/06/login_page_image.png" alt="" style="transform: rotate(10deg)">
             <h1 class="mb-4">Leitti.com <br class="d-none d-lg-inline">Reduce school drop out.</h1>
-            <p class="lead text-muted">We offer you, simple, easy used and powerful app to evaluation the drop out score of your students.</p>
+            <p class="lead text-muted">We offer you, simple, easy used and powerful app to predict the drop out probabilities of your students.</p>
           </div>
         </div>
       </div>
