@@ -1,15 +1,18 @@
 from flask import Flask, request, jsonify, session, make_response
-from peewee import SqliteDatabase, Model, CharField
-from passlib.hash import pbkdf2_sha256
+from flask_cors import CORS
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity, get_jwt, unset_jwt_cookies
 )
-from functools import wraps
 
+from passlib.hash import pbkdf2_sha256
+
+
+from functools import wraps
 from dotenv import load_dotenv
 import os
 
+from peewee import SqliteDatabase, Model, CharField
 from mongodb.models.userModel import *
 from mongodb.mixins import *
 from mongodb.db import *
@@ -47,10 +50,13 @@ def create_app():
     # mongodb
     # Use LocalProxy to read the global db instance with just `db`
     db = LocalProxy(get_db)
+    CORS(app)
+    # CORS(app, origins='*', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allow_headers=['Content-Type', 'Authorization'], supports_credentials=True)
 
-    # @app.before_request
-    # def before_request():
-    #     print(request.headers)
+    @app.before_request
+    def before_request():
+        print(request.headers)
+        print(request.json)
 
     @app.route('/')
     def hello():
@@ -92,6 +98,7 @@ def create_app():
         user = db.users.find_one({'email': email})
         # print(type(user))
         if user and pbkdf2_sha256.verify(password, user['password']):
+            print('hj')
             # Generate a JWT token
             # access_token = create_access_token(identity=User(str(user['_id']),user['username'],user['email']))
             access_token = create_access_token(identity=user_encoder(user)['_id'], additional_claims=user_encoder(user))
