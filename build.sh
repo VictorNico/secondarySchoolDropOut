@@ -11,4 +11,3 @@ mv frontend2/dist/* backend/static
 
 cd backend
 pip install -r requirements.txt
-gunicorn wsgi:app --reload
