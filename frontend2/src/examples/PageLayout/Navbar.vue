@@ -1,9 +1,8 @@
 <script setup>
 
-import { inject } from 'vue'
 import { computed } from "vue";
+import { useStore } from "vuex";
 
-const checkAuthentication = inject('$checkAuthentication')
 defineProps({
   btnBackground: {
     type: String,
@@ -19,7 +18,8 @@ defineProps({
   },
   isBtn: { type: String, default: "bg-gradient-light" },
 });
-const visible = computed(() => checkAuthentication())
+const store = useStore();
+const visible = computed(() => store.state.connect)
 </script>
 <template>
   <!-- Navbar -->

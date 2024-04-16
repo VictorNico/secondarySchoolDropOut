@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUnmount, onBeforeMount } from "vue";
+import { onBeforeUnmount, onBeforeMount, computed } from "vue";
 import { useStore } from "vuex";
 
 import Navbar from "@/examples/PageLayout/Navbar.vue";
@@ -7,8 +7,11 @@ import AppFooter from "@/examples/PageLayout/Footer.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
+import axios from "axios"
 const body = document.getElementsByTagName("body")[0];
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const store = useStore();
 onBeforeMount(() => {
   store.state.hideConfigButton = true;
@@ -24,6 +27,38 @@ onBeforeUnmount(() => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 });
+
+const credential = computed({
+  get(){
+    return store.getters.credential
+  },
+  set(val){
+    store.dispatch("update_Credential",val)
+  }
+})
+
+const register = (e) => {
+  e.preventDefault();
+  const data = JSON.parse(JSON.stringify(credential.value));
+  console.log(data)
+  const config = {
+    method: 'post',
+    url: `${process.env.VUE_APP_API_URL}/api/register`,
+    headers: { 
+      'Content-Type': 'application/json', 
+      },
+    data : data
+  };
+
+  axios(config)
+  .then( () => {;
+    router.push({ name: 'Signin' });
+
+  })
+  .catch( (error) => {
+    console.log(error);
+  });
+}
 </script>
 <template>
   <div class="container top-0 position-sticky z-index-sticky">
@@ -178,18 +213,21 @@ onBeforeUnmount(() => {
                   type="text"
                   placeholder="Name"
                   aria-label="Name"
+                  v-model="credential.username"
                 />
                 <argon-input
                   id="email"
                   type="email"
                   placeholder="Email"
                   aria-label="Email"
+                  v-model="credential.email"
                 />
                 <argon-input
                   id="password"
                   type="password"
                   placeholder="Password"
                   aria-label="Password"
+                  v-model="credential.password"
                 />
                 <argon-checkbox checked>
                   <label class="form-check-label" for="flexCheckDefault">
@@ -205,6 +243,7 @@ onBeforeUnmount(() => {
                     color="dark"
                     variant="gradient"
                     class="my-4 mb-2"
+                    @click="register"
                     >Sign up</argon-button
                   >
                 </div>

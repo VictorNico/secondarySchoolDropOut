@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUnmount, onBeforeMount, reactive } from "vue";
+import { onBeforeUnmount, onBeforeMount, computed } from "vue";
 import { useStore } from "vuex";
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
@@ -7,8 +7,12 @@ import ArgonSwitch from "@/components/ArgonSwitch.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import axios from "axios"
 const body = document.getElementsByTagName("body")[0];
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const store = useStore();
+
 onBeforeMount(() => {
   store.state.hideConfigButton = true;
   store.state.showNavbar = false;
@@ -24,15 +28,22 @@ onBeforeUnmount(() => {
   body.classList.add("bg-gray-100");
 });
 
-const credential = reactive({})
+const credential = computed({
+  get(){
+    return store.getters.credential
+  },
+  set(val){
+    store.dispatch("update_Credential",val)
+  }
+})
 
 const login = (e) => {
   e.preventDefault();
-  const data = JSON.stringify(credential);
-
+  const data = JSON.parse(JSON.stringify(credential.value));
+  console.log(data)
   const config = {
     method: 'post',
-    url: 'http://127.0.0.1:8000/api/login',
+    url: `${process.env.VUE_APP_API_URL}/api/login`,
     headers: { 
       'Content-Type': 'application/json', 
       },
@@ -40,10 +51,13 @@ const login = (e) => {
   };
 
   axios(config)
-  .then(function (response) {
+  .then( (response) => {
     console.log(JSON.stringify(response.data));
+    store.state.connect = true;
+    router.push({ name: 'Dashboard' });
+
   })
-  .catch(function (error) {
+  .catch( (error) => {
     console.log(error);
   });
 }

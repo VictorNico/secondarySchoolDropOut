@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session, make_response
+from flask import Flask, request, jsonify, session, make_response, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
@@ -37,7 +37,7 @@ def create_app():
     # app.config['DATABASE'] = os.getenv('DATABASE')
     app.config['MONGO_URI'] = os.getenv('DB_SRV_CONNECTOR')
     app.config['JWT_TOKEN_LOCATION'] = ["cookies"]
-    app.config['JWT_COOKIE_SECURE'] = False  # Set to True in production
+    app.config['JWT_COOKIE_SECURE'] = True  # Set to True in production
     app.config['SESSION_COOKIE_HTTPONLY'] = False  # Set to True in production
     app.config['JWT_COOKIE_CSRF_PROTECT'] = False  # Set to True in production
     app.config['SESSION_COOKIE_SAMESITE'] = "None"  # Set to True in production
@@ -53,14 +53,18 @@ def create_app():
     CORS(app)
     # CORS(app, origins='*', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allow_headers=['Content-Type', 'Authorization'], supports_credentials=True)
 
-    @app.before_request
-    def before_request():
-        print(request.headers)
-        print(request.json)
+    # @app.before_request
+    # def before_request():
+    #     print(request.headers)
+        # print(request.json)
 
-    @app.route('/')
-    def hello():
-        return 'Hello, Flask 121!'
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def serve_vue(path):
+        if path != "" and os.path.exists(os.path.join('static', path)):
+            return send_from_directory('static', path)
+        else:
+            return send_from_directory('static', 'index.html')
     
     @app.route('/api/register', methods=['POST'])
     def register():
@@ -98,13 +102,13 @@ def create_app():
         user = db.users.find_one({'email': email})
         # print(type(user))
         if user and pbkdf2_sha256.verify(password, user['password']):
-            print('hj')
+            # print('hj')
             # Generate a JWT token
             # access_token = create_access_token(identity=User(str(user['_id']),user['username'],user['email']))
             access_token = create_access_token(identity=user_encoder(user)['_id'], additional_claims=user_encoder(user))
             resp = make_response(jsonify({'message': 'Login successful'}), 200)
             resp.set_cookie('access_token_cookie', access_token)
-
+            # resp.cache_control.no_cache = True
             return resp
         else:
             return make_response('Invalid email or password', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
