@@ -11,6 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
+        run: npm install
+      - name: Build frontend
+        run: npm run build
       - name: Build script
         run: bash build.sh
   deploy:
@@ -22,4 +25,5 @@ jobs:
         uses: netlify/actions/cli@v1
         with:
           args: deploy --prod
-          inputs: NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          inputs: 
+            NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
